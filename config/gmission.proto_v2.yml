@@ -1,0 +1,66 @@
+# detection model config
+detection_kptmaskrcnn:
+  model_path: './resources/models/kptrcnn_0912_lastest.pt'
+  input_size: None
+  device_id: 0
+  conf_thres: 0.5
+  iou_thres: 0.45
+  seg_thres: 0.5
+
+# classification model config
+fish_classification:
+  model_path: './resources/models/fish_clssification_0911_model.onnx'
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  target_index: 0  # 어종 중 넙치의 인덱스 0
+
+fish_shape_classification:
+  model_path: './resources/models/fish_iswhole_0911_model.onnx'
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  target_index: 0  # 전체형상 인덱스 1
+  threshold: 0.1
+  temperature: 2.0
+
+# Fish disease detection model config
+disease_of_o2:
+  model_path: './resources/models/resnet18_o2_0911_model.onnx'
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  threshold: 0.5
+disease_of_scratch:
+  model_path: './resources/models/resnet18_scratch_0911_model.onnx'
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  threshold: 0.5
+disease_of_ulcer:
+  model_path: './resources/models/resnet18_ulcer_0911_model.onnx'
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  threshold: 0.5
+disease_of_melanism:
+  model_path: './resources/models/resnet18_melanism_0911_model.onnx'
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  threshold: 0.5
+disease:
+  threshold: 0.5
+
+
+
+# anomaly detection model config
+patchcore:
+  repo_name: 'pytorch/vision:v0.9.0'
+  model_name:  'wide_resnet50_2'
+  index_path: './resources/index.latest.faiss'
+  k: 9
+  input_size: 224
+  device_id: 0
+  batch_size: 8
+  threshold: 15

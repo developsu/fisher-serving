@@ -10,6 +10,14 @@ import glob
 import os
 from PIL import Image
 
+# HOST = os.environ.get("HOST", "127.0.0.1")
+# PORT = os.environ.get("PORT", 12000)
+# threshold = 0.5
+#
+# fpath = glob.glob("./resources/samples/*.JPG")[0]
+# response = requests.post(f"http://{HOST}:{PORT}/detection", files={"file": open(fpath, 'rb')})
+#
+
 
 if __name__ == "__main__":
 
@@ -23,21 +31,21 @@ if __name__ == "__main__":
     PORT = os.environ.get("PORT", 12000)
     threshold = 0.5
 
-    if not os.path.exists("response"):
-        os.mkdir("./response")
+    if not os.path.exists("response/samples"):
+        os.makedirs("./response/samples", exist_ok=True)
 
-    fpaths = glob.glob("./resources/sample/*.JPG")[:50]
+    fpaths = glob.glob("./resources/samples/*.JPG")[:50]
 
     # Capture frame-by-frame
     for i, fpath in enumerate(fpaths):
-
+        # break
         start = time.time()
         response = requests.post(f"http://{HOST}:{PORT}/detection", files={"file": open(fpath, 'rb')})
         end = time.time()
         elapsed = end - start
         logging.info(f"took {elapsed:.4f} sec")
 
-        idx2fish = {0: "BP", 1: "KR", 2: "RB", 3: "OF", 4: "RS"}
+        idx2fish = {0: "of", 1: "shrimp"}
 
         if not response.ok:
             logging.error(response.text)
@@ -48,17 +56,17 @@ if __name__ == "__main__":
         zipped = zip(
             data['fish_category'],
             data['bboxes'],
-            data['anomaly_scores'],
+            data['diseases'],
+            data['diseases_scores'],
             data['is_whole_shape'],
             data['anomaly_maps'],
         )
 
-        for j, (fish_category, bbox, prob, is_target, anomaly_map) in enumerate(zipped):
-
+        for j, (fish_category, bbox, is_disease, prob, is_target, anomaly_map) in enumerate(zipped):
             xmin, ymin, xmax, ymax = bbox
 
             # 광어가 아닌 경우
-            if fish_category != 3:
+            if fish_category != 0:
                 color = (128, 128, 128)
                 cv2.putText(frame, idx2fish[fish_category], (xmin, ymin - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 5)
                 frame = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 5)
@@ -71,7 +79,8 @@ if __name__ == "__main__":
                 frame = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 5)
                 continue
 
-            label = prob > threshold
+            label = is_disease > threshold
+            prob_str = ', '.join([ f'{i}:'+str(round(prob[i],3)) for i in prob])
 
             if label and anomaly_map:
 
@@ -99,7 +108,7 @@ if __name__ == "__main__":
             color = (36, 255, 12) if not label else (36, 36, 255)
             frame = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 5)
             text = f"OF: Abnormal" if label else "OF: Normal"
-            prob = prob if label else 1 - prob
-            cv2.putText(frame, f"{text}({prob:.2%})", (xmin, ymin - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 5)
+            #prob = prob if label else 1 - prob
+            cv2.putText(frame, f"{text}({prob_str})", (xmin, ymin - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 5)
 
         cv2.imwrite(f"response/{os.path.basename(fpath)}", frame)

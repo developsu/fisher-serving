@@ -16,7 +16,7 @@ while true; do
   "http://$HOST:$PORT/detection" \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
-  -F 'file=@"resources/sample/20220816_100GOPRO_G0020073.JPG"' \
+  -F 'file=@"resources/sample/20220818_103GOPRO_G0219367.JPG"' \
   -w "\n[*] Elapsed: %{time_total}\n"
 
 done;

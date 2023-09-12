@@ -5,8 +5,11 @@ Pillow
 PyYAML
 torch
 torchvision
+torchvision
 uvicorn
 onnxruntime-gpu
 onnx
 python-multipart
 scipy
+matplotlib
+faiss-gpu

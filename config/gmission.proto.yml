@@ -8,7 +8,7 @@ detection:
 
 # classification model config
 fish_classification:
-  model_path: './resources/models/efficientnet-b0.1205.onnx'
+  model_path: './resources/models/efficientnet-b0.1207.onnx'
   input_size: 128
   device_id: 0
   batch_size: 8

@@ -10,11 +10,11 @@ from easydict import EasyDict
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 
-from utils import non_max_suppression, scale_coords, filter_invalid_bboxes, letterbox
-from utils import IMAGENET_MEAN, IMAGENET_STD
-from utils import sigmoid, encode_base64, postprocess_anomaly_maps
-from inference_session import initialize_session
-from patch_core import STPM
+from src.utils import non_max_suppression, scale_coords, filter_invalid_bboxes, letterbox
+from src.utils import IMAGENET_MEAN, IMAGENET_STD
+from src.utils import sigmoid, encode_base64, postprocess_anomaly_maps
+from src.inference_session import initialize_session
+from src.patch_core import STPM
 
 
 # 설정파일 로드
@@ -36,12 +36,13 @@ PATCHCORE_SESSION = STPM(
     config.patchcore.threshold,
     config.patchcore.device_id,
 )
+
 app = FastAPI()
 
 
 @torch.no_grad()
 @app.post("/detection")
-async def get_bboxes_and_diseases(file: UploadFile) -> JSONResponse:
+async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
     """
     업로드된 이미지에 대해 넙치 객체의 바운딩 박스, 질병 여부를 반환
     - bboxes: x1, y1, x2, y2 순서 (Top left & bottom right)
@@ -95,7 +96,7 @@ async def get_bboxes_and_diseases(file: UploadFile) -> JSONResponse:
     anomaly_maps = np.array(["" for _ in range(num_objects)], dtype=object)
     diseases = np.array([0 for _ in range(num_objects)], dtype=np.uint8)
     is_whole_shape = np.array([0 for _ in range(num_objects)], dtype=np.uint8)
-    mask = np.array([False for _ in range(num_objects)], dtype=np.bool)
+    mask = np.array([False for _ in range(num_objects)], dtype=np.bool_)
 
     # extract rois from the original input while preserving aspects
     rois: List[np.ndarray] = []
@@ -164,7 +165,7 @@ async def get_bboxes_and_diseases(file: UploadFile) -> JSONResponse:
     is_whole_shape[mask] = 1
 
     ####################################################################################################################
-    # 4. Anomaly detection
+    # 4. Anomaly detection & Classification
     ####################################################################################################################
 
     if whole_shape_mask.any():

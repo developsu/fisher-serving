@@ -1,8 +1,30 @@
 """onnxruntime session"""
-
-import onnxruntime as ort
 import numpy as np
 
+import onnxruntime as ort
+import torch
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from src import mask_kpt_rcnn
+
+def load_mask_kpt_rcnn(weight_path):
+    num_classes = 3
+    mask_kpt_rcnn_model = mask_kpt_rcnn.mask_kpt_rcnn_resnet50_fpn(
+                weights=False, num_keypoints=2)
+    in_features = 1024
+    in_features_mask = 256
+    hidden_layer = 256
+    mask_kpt_rcnn_model.roi_heads.box_predictor = FastRCNNPredictor(
+        in_features, num_classes)
+    mask_kpt_rcnn_model.roi_heads.mask_predictor = MaskRCNNPredictor(
+        in_features_mask, hidden_layer, num_classes)
+
+    ordered_dict = torch.load(weight_path)
+
+    model = mask_kpt_rcnn_model
+    model.load_state_dict(ordered_dict)
+    model.eval()
+    return model
 
 class BatchInferenceSession(ort.InferenceSession):
 
