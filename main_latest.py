@@ -299,14 +299,12 @@ async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
             dsize = (config.fish_classification.input_size, config.fish_classification.input_size)
             _img_rois = np.stack([cv2.resize(roi, dsize=dsize) for roi in img_rois])
             anomaly_rois_sub = anomaly_rois[whole_shape_mask]
-            _, _heatmaps = PATCHCORE_SESSION.batch_run(anomaly_rois_sub.astype(np.float32), config.patchcore.batch_size)
+            _, heatmaps = PATCHCORE_SESSION.batch_run(anomaly_rois_sub.astype(np.float32), config.patchcore.batch_size)
 
         # heatmap = whole_shape & disease
         # others = whole_shape
-        heatmaps = postprocess_anomaly_maps(_heatmaps, dsize=dsize)
-        heatmaps = heatmaps.astype(np.float32)/255.
-        heatmaps *= _img_rois[whole_shape_mask].transpose(0, 3, 1, 2)*255
-        heatmaps = heatmaps.astype(np.uint8)
+        heatmaps = postprocess_anomaly_maps(heatmaps, dsize=dsize)
+        heatmaps *= _img_rois[whole_shape_mask].transpose(0, 3, 1, 2).astype(np.uint8)
         anomaly_maps[whole_shape_mask] = [encode_base64(heatmap) for heatmap in heatmaps.transpose(0, 2, 3, 1)]
         diseases_scores[mask] = np.array(_disease_scores)[mask]
         diseases[mask] = np.array(is_disease)[mask].astype(np.uint8)
@@ -327,4 +325,4 @@ async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
     return JSONResponse(content=content)
 
 if __name__ == "__main__":                                                                                              ###### 수정필요 삭제
-    uvicorn.run(app, host='127.0.0.1', port=12001, log_level='info')
+    uvicorn.run(app, host='127.0.0.1', port=12000, log_level='info')

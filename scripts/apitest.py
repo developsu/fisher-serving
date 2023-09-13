@@ -16,7 +16,6 @@ from PIL import Image
 #
 # fpath = glob.glob("./resources/samples/*.JPG")[0]
 # response = requests.post(f"http://{HOST}:{PORT}/detection", files={"file": open(fpath, 'rb')})
-#
 
 
 if __name__ == "__main__":
@@ -28,7 +27,7 @@ if __name__ == "__main__":
     )
 
     HOST = os.environ.get("HOST", "127.0.0.1")
-    PORT = os.environ.get("PORT", 12000)
+    PORT = os.environ.get("PORT", 12001)
     threshold = 0.5
 
     if not os.path.exists("response/samples"):

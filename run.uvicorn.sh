@@ -9,7 +9,7 @@ source $env_file
 source $PYTHON_VENV/bin/activate
 
 if [ $DEBUG = false ]; then
-  uvicorn main:app --host $HOST --port $PORT --workers $WEB_CONCURRENCY --log-level info
+  uvicorn main_latest:app --host $HOST --port $PORT --workers $WEB_CONCURRENCY --log-level info
 else
-  uvicorn main:app --reload --host $HOST --port $PORT --log-level debug
+  uvicorn main_latest:app --reload --host $HOST --port $PORT --log-level debug
 fi;
