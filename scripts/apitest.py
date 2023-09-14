@@ -99,7 +99,7 @@ if __name__ == "__main__":
                 anomaly_map = np.array(anomaly_map)[pad_top:max_size-pad_bottom+1, pad_left:max_size-pad_right+1]
                 anomaly_map = cv2.resize(anomaly_map, dsize=(w, h))
 
-                mask = (anomaly_map > 125).any(axis=-1, keepdims=True)
+                mask = (anomaly_map > 125).any(axis=-1, keepdims=True) #125
 
                 roi = frame[ymin:ymax, xmin:xmax, :]
                 frame[ymin:ymax, xmin:xmax, :] = roi * ~mask + cv2.addWeighted(roi * mask, 0.8, anomaly_map * mask, 0.2, 0)

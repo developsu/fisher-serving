@@ -44,11 +44,7 @@ def paddingresize(obj_img, head_kpt, crop_size):
         obj_img = np.pad(obj_img,
                          ((0, 0), (pad_l, pad_t - pad_l), (0, 0)),
                          'constant', constant_values=0)
-        # # keypoint
-        # _kp_r[0][0] = int(_kp_r[0][0] * ratio) + pad_l
-        # _kp_r[0][1] = int(_kp_r[0][1] * ratio)
-        # _kp_r[1][0] = int(_kp_r[1][0] * ratio) + pad_l
-        # _kp_r[1][1] = int(_kp_r[1][1] * ratio)
+
         head_kpt[0] = min(int(head_kpt[0] * ratio) + pad_l, 512)
         head_kpt[1] = min(int(head_kpt[1] * ratio), 512)
 
@@ -67,8 +63,8 @@ def paddingresize(obj_img, head_kpt, crop_size):
     return obj_img, head_kpt
 
 # 설정파일 로드
-#MODEL_CONFIG_FPATH = os.environ.get("MODEL_CONFIG_FPATH")
-MODEL_CONFIG_FPATH = './config/gmission.proto_v2.yml'                                                                      ###### 수정필요 대치
+MODEL_CONFIG_FPATH = os.environ.get("MODEL_CONFIG_FPATH")
+# MODEL_CONFIG_FPATH = './config/gmission.proto_v2.yml'                                                                   ###### 수정필요 대치
 config = yaml.safe_load(open(MODEL_CONFIG_FPATH).read())
 config = EasyDict(config)
 
@@ -299,12 +295,12 @@ async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
             dsize = (config.fish_classification.input_size, config.fish_classification.input_size)
             _img_rois = np.stack([cv2.resize(roi, dsize=dsize) for roi in img_rois])
             anomaly_rois_sub = anomaly_rois[whole_shape_mask]
-            _, heatmaps = PATCHCORE_SESSION.batch_run(anomaly_rois_sub.astype(np.float32), config.patchcore.batch_size)
+            _, _heatmaps = PATCHCORE_SESSION.batch_run(anomaly_rois_sub.astype(np.float32), config.patchcore.batch_size)
 
         # heatmap = whole_shape & disease
         # others = whole_shape
-        heatmaps = postprocess_anomaly_maps(heatmaps, dsize=dsize)
-        heatmaps *= _img_rois[whole_shape_mask].transpose(0, 3, 1, 2).astype(np.uint8)
+        heatmaps = postprocess_anomaly_maps(_heatmaps, dsize=dsize)
+        heatmaps *= (_img_rois[whole_shape_mask].transpose(0, 3, 1, 2) > 0)
         anomaly_maps[whole_shape_mask] = [encode_base64(heatmap) for heatmap in heatmaps.transpose(0, 2, 3, 1)]
         diseases_scores[mask] = np.array(_disease_scores)[mask]
         diseases[mask] = np.array(is_disease)[mask].astype(np.uint8)
@@ -324,5 +320,5 @@ async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
 
     return JSONResponse(content=content)
 
-if __name__ == "__main__":                                                                                              ###### 수정필요 삭제
-    uvicorn.run(app, host='127.0.0.1', port=12000, log_level='info')
+# if __name__ == "__main__":                                                                                              ###### 수정필요 삭제
+#     uvicorn.run(app, host='127.0.0.1', port=12000, log_level='info')

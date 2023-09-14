@@ -304,9 +304,7 @@ async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
         # heatmap = whole_shape & disease
         # others = whole_shape
         heatmaps = postprocess_anomaly_maps(_heatmaps, dsize=dsize)
-        heatmaps = heatmaps.astype(np.float32)/255.
-        heatmaps *= _img_rois[whole_shape_mask].transpose(0, 3, 1, 2)*255
-        heatmaps = heatmaps.astype(np.uint8)
+        heatmaps *= (_img_rois[whole_shape_mask].transpose(0, 3, 1, 2) > 0)
         anomaly_maps[whole_shape_mask] = [encode_base64(heatmap) for heatmap in heatmaps.transpose(0, 2, 3, 1)]
         diseases_scores[mask] = np.array(_disease_scores)[mask]
         diseases[mask] = np.array(is_disease)[mask].astype(np.uint8)

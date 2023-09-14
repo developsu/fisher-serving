@@ -26,7 +26,7 @@ fish_shape_classification:
 
 # Fish disease detection model config
 disease_of_o2:
-  model_path: './resources/models/resnet18_o2_0911_model.onnx'
+  model_path: './resources/models/resnet50_o2_0911_model.onnx'
   input_size: 224
   device_id: 0
   batch_size: 8
