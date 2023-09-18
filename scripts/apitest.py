@@ -27,7 +27,7 @@ if __name__ == "__main__":
     )
 
     HOST = os.environ.get("HOST", "127.0.0.1")
-    PORT = os.environ.get("PORT", 12001)
+    PORT = os.environ.get("PORT", 12002)
     threshold = 0.5
 
     if not os.path.exists("response/samples"):

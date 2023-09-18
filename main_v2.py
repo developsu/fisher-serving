@@ -325,4 +325,4 @@ async def get_detection_and_diseases(file: UploadFile) -> JSONResponse:
     return JSONResponse(content=content)
 
 if __name__ == "__main__":                                                                                              ###### 수정필요 삭제
-    uvicorn.run(app, host='127.0.0.1', port=12001, log_level='info')
+    uvicorn.run(app, host='127.0.0.1', port=12002, log_level='info')
